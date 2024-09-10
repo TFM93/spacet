@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16.4
+    environment:
+      POSTGRES_PASSWORD: spacetpw
+      POSTGRES_DB: spacet-db
+    ports:
+      - "5432:5432"
+
+  spacet:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      PG_DSN: host=postgres port=5432 user=postgres dbname=spacet-db password=spacetpw sslmode=disable
+      GIN_MODE: release
