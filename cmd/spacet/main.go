@@ -2,12 +2,18 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"spacet/config"
 	"syscall"
 
+	app "spacet/internal/app/queries"
+	"spacet/internal/controller/grpc"
+	"spacet/internal/controller/http"
+	"spacet/pkg/grpcserver"
+	"spacet/pkg/httpserver"
 	"spacet/pkg/logger"
 )
 
@@ -30,7 +36,7 @@ func main() {
 	}
 }
 
-func run(_ *config.Config, l logger.Interface) error {
+func run(cfg *config.Config, l logger.Interface) error {
 
 	// -------------------------------------------------------------------------
 	// Setup Infra
@@ -38,18 +44,44 @@ func run(_ *config.Config, l logger.Interface) error {
 	// -------------------------------------------------------------------------
 	// Setup Service Layer
 
-	// -------------------------------------------------------------------------
-	// Setup Controller Layer
+	healthCheckQueries := app.NewHealthCheckQueries()
 
 	// -------------------------------------------------------------------------
+	// Setup Controller Layer
+	httpEngine, err := http.Setup(l, cfg.GRPC.Port, healthCheckQueries)
+	if err != nil {
+		return fmt.Errorf("httpServer.Setup: %w", err)
+	}
+
+	settedUpServer, err := grpc.Setup(l)
+	if err != nil {
+		return fmt.Errorf("grpcServer.Setup: %w", err)
+	}
+	// -------------------------------------------------------------------------
 	// Start API Servers
+
+	grpcServer := grpcserver.New(settedUpServer, grpcserver.Port(cfg.GRPC.Port), grpcserver.WithLogger(l))
+	httpServer := httpserver.New(httpEngine, httpserver.Port(cfg.HTTP.Port), httpserver.WithLogger(l))
 
 	// -------------------------------------------------------------------------
 	// Shutdown
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
-	l.Info("waiting for interrupt signal")
-	<-interrupt
+
+	select {
+	case s := <-interrupt:
+		l.Info("received run signal: " + s.String())
+	case err = <-grpcServer.Notify():
+		l.Error(fmt.Errorf("run - grpcServer.Notify: %w", err))
+	case err = <-httpServer.Notify():
+		l.Error(fmt.Errorf("run - httpServer.Notify: %w", err))
+	}
+
+	err = httpServer.Shutdown()
+	if err != nil {
+		return fmt.Errorf("httpServer.Shutdown: %w", err)
+	}
+	grpcServer.GracefulStop()
 	return nil
 }

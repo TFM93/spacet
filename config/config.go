@@ -8,13 +8,22 @@ import (
 
 type (
 	Config struct {
-		App `yaml:"app"`
+		App  `yaml:"app"`
+		HTTP `yaml:"http"`
+		GRPC `yaml:"grpc"`
 	}
 
 	App struct {
 		Name     string `env-required:"true" yaml:"name"    env:"APP_NAME"`
 		Version  string `env-required:"true" yaml:"version" env:"APP_VERSION"`
 		LogLevel string `env-required:"true" yaml:"log_level"   env:"LOG_LEVEL"`
+	}
+	HTTP struct {
+		Port int32 `env-required:"true" yaml:"port" env:"HTTP_PORT"`
+	}
+
+	GRPC struct {
+		Port int32 `env-required:"true" yaml:"port" env:"GRPC_PORT"`
 	}
 )
 

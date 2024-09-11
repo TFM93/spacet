@@ -18,6 +18,12 @@ app:
   name: 'spacet'
   version: '1.0.0'
   log_level: 'debug'
+
+http:
+  port: 8080
+
+grpc:
+  port: 8081
   `)
 	invalidTmpFile, err := os.CreateTemp("", "invalid_config.yaml")
 	assert.NoError(t, err)
@@ -62,7 +68,9 @@ app:
 				path: validTmpFile.Name(),
 			},
 			want: &Config{
-				App: App{Name: "spacet", Version: "1.0.0", LogLevel: "debug"},
+				App:  App{Name: "spacet", Version: "1.0.0", LogLevel: "debug"},
+				HTTP: HTTP{Port: 8080},
+				GRPC: GRPC{Port: 8081},
 			},
 			wantErr: nil,
 		},
