@@ -1,22 +1,36 @@
 package main
 
 import (
-	"fmt"
+	"flag"
+	"log"
 	"os"
 	"os/signal"
+	"spacet/config"
 	"syscall"
+
+	"spacet/pkg/logger"
 )
 
 func main() {
 	// -------------------------------------------------------------------------
 	// Configuration
 
-	if err := run(); err != nil {
+	configPath := flag.String("config", "", "Path to the configuration file")
+	flag.Parse()
+
+	cfg, err := config.NewConfig(*configPath)
+	if err != nil {
+		log.Fatalf("Config error: %s", err)
+	}
+	l := logger.New(cfg.LogLevel)
+
+	if err := run(cfg, l); err != nil {
+		l.Error("Run error: %s", err)
 		os.Exit(1)
 	}
 }
 
-func run() error {
+func run(_ *config.Config, l logger.Interface) error {
 
 	// -------------------------------------------------------------------------
 	// Setup Infra
@@ -35,7 +49,7 @@ func run() error {
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
-	fmt.Println("waiting for interrupt signal")
+	l.Info("waiting for interrupt signal")
 	<-interrupt
 	return nil
 }

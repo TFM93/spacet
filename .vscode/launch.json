@@ -10,6 +10,7 @@
             "request": "launch",
             "mode": "debug",
             "program": "cmd/spacet/main.go",
+            "args": ["-config=../../config/config.yaml"],
             "env": {
                 "PG_DSN": "host=localhost port=5432 user=postgres dbname=spacet-db password=spacetpw sslmode=disable",
                 "GIN_MODE": "release",

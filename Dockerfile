@@ -9,5 +9,6 @@ FROM gcr.io/distroless/static:nonroot
 WORKDIR /app 
 
 COPY --from=build-stage /spacet /app/
+COPY ./config/config.yaml /app/config/config.yaml
 
 CMD ["./spacet", "-config=/app/config/config.yaml"]
