@@ -5,3 +5,7 @@ docker-compose:
 .PHONY: proto
 proto:
 	buf generate
+
+.PHONY: test
+test:
+	go test ./...
