@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -8,8 +9,9 @@ import (
 	"os/signal"
 	"spacet/config"
 	"syscall"
+	"time"
 
-	app "spacet/internal/app/queries"
+	"spacet/internal/app"
 	"spacet/internal/controller/grpc"
 	"spacet/internal/controller/http"
 	"spacet/pkg/grpcserver"
@@ -45,6 +47,14 @@ func run(cfg *config.Config, l logger.Interface) error {
 	// Setup Service Layer
 
 	healthCheckQueries := app.NewHealthCheckQueries()
+	spaceXCommands := app.NewSpaceXCommands(l)
+	bookingsCommands := app.NewBookingsCommands(l)
+
+	bookingsOrchestrator := app.NewBookingsOrchestrator(l, spaceXCommands, bookingsCommands)
+
+	orchestratorInterval := time.Duration(cfg.Orchestrator.Interval) * time.Hour
+	go bookingsOrchestrator.StartScheduledSync(context.Background(), orchestratorInterval)
+	defer bookingsOrchestrator.GracefulStop()
 
 	// -------------------------------------------------------------------------
 	// Setup Controller Layer
@@ -61,6 +71,7 @@ func run(cfg *config.Config, l logger.Interface) error {
 	// Start API Servers
 
 	grpcServer := grpcserver.New(settedUpServer, grpcserver.Port(cfg.GRPC.Port), grpcserver.WithLogger(l))
+	defer grpcServer.GracefulStop()
 	httpServer := httpserver.New(httpEngine, httpserver.Port(cfg.HTTP.Port), httpserver.WithLogger(l))
 
 	// -------------------------------------------------------------------------
@@ -82,6 +93,6 @@ func run(cfg *config.Config, l logger.Interface) error {
 	if err != nil {
 		return fmt.Errorf("httpServer.Shutdown: %w", err)
 	}
-	grpcServer.GracefulStop()
+
 	return nil
 }

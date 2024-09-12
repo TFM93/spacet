@@ -1,15 +1,19 @@
-package app
+package healthcheck
 
 import (
 	"context"
-	"spacet/internal/app/services"
 )
+
+// Queries is an interface for checking the health of application dependencies
+type Queries interface {
+	Check(ctx context.Context) bool
+}
 
 type healthCheckQueries struct {
 }
 
-// NewHealthCheckQueries creates a service that satisfies the interface HealthCheckQueries
-func NewHealthCheckQueries() services.HealthCheckQueries {
+// NewQueries creates a service that satisfies the interface HealthCheckQueries
+func NewQueries() Queries {
 	return &healthCheckQueries{}
 }
 

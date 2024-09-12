@@ -8,9 +8,10 @@ import (
 
 type (
 	Config struct {
-		App  `yaml:"app"`
-		HTTP `yaml:"http"`
-		GRPC `yaml:"grpc"`
+		App          `yaml:"app"`
+		HTTP         `yaml:"http"`
+		GRPC         `yaml:"grpc"`
+		Orchestrator `yaml:"orchestrator"`
 	}
 
 	App struct {
@@ -24,6 +25,10 @@ type (
 
 	GRPC struct {
 		Port int32 `env-required:"true" yaml:"port" env:"GRPC_PORT"`
+	}
+
+	Orchestrator struct {
+		Interval float32 `env-required:"true" yaml:"interval" env:"ORCHESTRATOR_INTERVAL"`
 	}
 )
 

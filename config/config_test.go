@@ -24,6 +24,9 @@ http:
 
 grpc:
   port: 8081
+
+orchestrator:
+  interval: 0.5
   `)
 	invalidTmpFile, err := os.CreateTemp("", "invalid_config.yaml")
 	assert.NoError(t, err)
@@ -68,9 +71,10 @@ grpc:
 				path: validTmpFile.Name(),
 			},
 			want: &Config{
-				App:  App{Name: "spacet", Version: "1.0.0", LogLevel: "debug"},
-				HTTP: HTTP{Port: 8080},
-				GRPC: GRPC{Port: 8081},
+				App:          App{Name: "spacet", Version: "1.0.0", LogLevel: "debug"},
+				HTTP:         HTTP{Port: 8080},
+				GRPC:         GRPC{Port: 8081},
+				Orchestrator: Orchestrator{Interval: float32(0.5)},
 			},
 			wantErr: nil,
 		},

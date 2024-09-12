@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"spacet/internal/app/services"
+	"spacet/internal/app/healthcheck"
 	"spacet/pkg/logger"
 
 	gen "spacet/gen/proto/go"
@@ -17,7 +17,7 @@ import (
 )
 
 // Setup creates a new gin Engine, configures the middlewares and registers the routes
-func Setup(l logger.Interface, grpcServerPort int32, healthCheck services.HealthCheckQueries) (*gin.Engine, error) {
+func Setup(l logger.Interface, grpcServerPort int32, healthCheck healthcheck.Queries) (*gin.Engine, error) {
 	engine := gin.New()
 	engine.Use(l.GinLoggerFn())
 	engine.Use(gin.Recovery())

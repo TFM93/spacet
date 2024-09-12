@@ -8,3 +8,7 @@ http:
 
 grpc:
   port: 8081
+
+orchestrator:
+  # in hours
+  interval: 1 
