@@ -4,7 +4,9 @@ services:
     environment:
       POSTGRES_PASSWORD: spacetpw
       POSTGRES_DB: spacet-db
-
+    ports:
+      - "5432:5432"
+      
   spacet:
     build:
       context: .
@@ -12,6 +14,8 @@ services:
     environment:
       PG_DSN: host=postgres port=5432 user=postgres dbname=spacet-db password=spacetpw sslmode=disable
       GIN_MODE: release
+    volumes:
+      - ./migrations/postgresql:/migrations/postgresql:ro
     ports:
       - 8080:8080
       - 8081:8081

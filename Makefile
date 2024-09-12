@@ -1,6 +1,6 @@
 .PHONY: docker-compose
 docker-compose:
-	docker compose up --detach
+	docker compose up --detach --build
 
 .PHONY: proto
 proto:

@@ -1,0 +1,4 @@
+DROP TRIGGER IF EXISTS set_updated_at;
+DROP TABLE IF EXISTS bookings;
+DROP TYPE IF EXISTS gender;
+DROP FUNCTION IF EXISTS updated_at_refresh;

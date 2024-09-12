@@ -17,6 +17,7 @@ import (
 	"spacet/pkg/grpcserver"
 	"spacet/pkg/httpserver"
 	"spacet/pkg/logger"
+	postgres "spacet/pkg/postgresql"
 )
 
 func main() {
@@ -42,6 +43,17 @@ func run(cfg *config.Config, l logger.Interface) error {
 
 	// -------------------------------------------------------------------------
 	// Setup Infra
+
+	pg, err := postgres.New(
+		cfg.PG.DSN,
+		postgres.MaxPoolSize(cfg.PG.PoolMax),
+		postgres.AutoMigrate(true, "../../migrations/postgresql"),
+		postgres.WithLogger(l))
+
+	if err != nil {
+		return fmt.Errorf("postgres.New: %w", err)
+	}
+	defer pg.Close()
 
 	// -------------------------------------------------------------------------
 	// Setup Service Layer

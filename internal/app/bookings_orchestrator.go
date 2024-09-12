@@ -46,6 +46,7 @@ func (h *handler) SyncOnce(ctx context.Context) error {
 func (h *handler) StartScheduledSync(ctx context.Context, interval time.Duration) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
+	h.l.Info("Bookings-Scheduler: Starting")
 	for {
 		select {
 		case <-ticker.C:
@@ -71,6 +72,8 @@ func (h *handler) StartScheduledSync(ctx context.Context, interval time.Duration
 }
 
 func (h *handler) GracefulStop() {
-	h.once.Do(func() { close(h.stopChan) })
+	h.once.Do(func() {
+		close(h.stopChan)
+	})
 	h.wg.Wait()
 }

@@ -27,6 +27,10 @@ grpc:
 
 orchestrator:
   interval: 0.5
+
+postgres:
+  pool_max: 2
+  dsn: something
   `)
 	invalidTmpFile, err := os.CreateTemp("", "invalid_config.yaml")
 	assert.NoError(t, err)
@@ -75,6 +79,7 @@ orchestrator:
 				HTTP:         HTTP{Port: 8080},
 				GRPC:         GRPC{Port: 8081},
 				Orchestrator: Orchestrator{Interval: float32(0.5)},
+				PG:           PG{PoolMax: 2, DSN: "something"},
 			},
 			wantErr: nil,
 		},

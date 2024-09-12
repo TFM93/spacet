@@ -12,3 +12,6 @@ grpc:
 orchestrator:
   # in hours
   interval: 1 
+
+postgres:
+  pool_max: 2

@@ -12,6 +12,7 @@ type (
 		HTTP         `yaml:"http"`
 		GRPC         `yaml:"grpc"`
 		Orchestrator `yaml:"orchestrator"`
+		PG           `yaml:"postgres"`
 	}
 
 	App struct {
@@ -29,6 +30,11 @@ type (
 
 	Orchestrator struct {
 		Interval float32 `env-required:"true" yaml:"interval" env:"ORCHESTRATOR_INTERVAL"`
+	}
+
+	PG struct {
+		PoolMax int    `env-required:"true" yaml:"pool_max" env:"PG_POOL_MAX"`
+		DSN     string `env-required:"true" yaml:"dsn" env:"PG_DSN"`
 	}
 )
 
