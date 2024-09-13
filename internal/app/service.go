@@ -16,8 +16,8 @@ func NewHealthCheckQueries() healthcheck.Queries {
 }
 
 // NewSpaceXCommands creates a new instance of SpaceX Commands
-func NewSpaceXCommands(logger logger.Interface, launchPadRepo domain.LaunchPadRepoCommands, launchesRepo domain.LaunchRepoCommands) spacex.Commands {
-	return spacex.NewCommands(logger, launchPadRepo, launchesRepo)
+func NewSpaceXCommands(logger logger.Interface, client domain.SpaceXAPIQueries, launchPadRepo domain.LaunchPadRepoCommands, launchesRepo domain.LaunchRepoCommands) spacex.Commands {
+	return spacex.NewCommands(logger, client, launchPadRepo, launchesRepo)
 }
 
 // NewBookingsCommands creates a new instance of Booking Commands

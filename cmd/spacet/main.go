@@ -14,6 +14,8 @@ import (
 	"spacet/internal/app"
 	"spacet/internal/controller/grpc"
 	"spacet/internal/controller/http"
+	"spacet/internal/infra/postgresql"
+	"spacet/internal/infra/spacex"
 	"spacet/pkg/grpcserver"
 	"spacet/pkg/httpserver"
 	"spacet/pkg/logger"
@@ -40,7 +42,6 @@ func main() {
 }
 
 func run(cfg *config.Config, l logger.Interface) error {
-
 	// -------------------------------------------------------------------------
 	// Setup Infra
 
@@ -55,15 +56,27 @@ func run(cfg *config.Config, l logger.Interface) error {
 	}
 	defer pg.Close()
 
+	txSupplier := postgresql.NewTransactionSupplier(pg)
+
+	lpRepo := postgresql.NewLaunchPadCommandsRepo(pg, l)
+	lRepo := postgresql.NewLaunchesCommandsRepo(pg, l)
+	spacexClient := spacex.NewSpaceXQueries(l)
+
 	// -------------------------------------------------------------------------
 	// Setup Service Layer
 
 	healthCheckQueries := app.NewHealthCheckQueries()
-	spaceXCommands := app.NewSpaceXCommands(l)
+	spaceXCommands := app.NewSpaceXCommands(l, spacexClient, lpRepo, lRepo)
 	bookingsCommands := app.NewBookingsCommands(l)
+	syncCommands := app.NewSyncCommands(l, txSupplier, postgresql.NewSyncCommandsRepo(pg, l))
+
+	// updates the launchpad every 30 days
+	// todo: run this as a schedule and configure the launchpad frequency on configs
+	if err := syncCommands.SyncIfNecessary(context.Background(), "launchpads", 30*24*time.Hour, spaceXCommands.UpdateLaunchPads); err != nil {
+		l.Error("failed to sync launchpads: %s", err)
+	}
 
 	bookingsOrchestrator := app.NewBookingsOrchestrator(l, spaceXCommands, bookingsCommands)
-
 	orchestratorInterval := time.Duration(cfg.Orchestrator.Interval) * time.Hour
 	go bookingsOrchestrator.StartScheduledSync(context.Background(), orchestratorInterval)
 	defer bookingsOrchestrator.GracefulStop()
