@@ -67,7 +67,8 @@ func run(cfg *config.Config, l logger.Interface) error {
 
 	healthCheckQueries := app.NewHealthCheckQueries()
 	spaceXCommands := app.NewSpaceXCommands(l, spacexClient, lpRepo, lRepo)
-	bookingsCommands := app.NewBookingsCommands(l)
+	spaceXQueries := app.NewSpaceXQueries(l, spacexClient)
+	bookingsCommands := app.NewBookingsCommands(l, postgresql.NewBookingCommandsRepo(pg, l))
 	syncCommands := app.NewSyncCommands(l, txSupplier, postgresql.NewSyncCommandsRepo(pg, l))
 
 	// updates the launchpad every 30 days
@@ -76,10 +77,11 @@ func run(cfg *config.Config, l logger.Interface) error {
 		l.Error("failed to sync launchpads: %s", err)
 	}
 
-	bookingsOrchestrator := app.NewBookingsOrchestrator(l, spaceXCommands, bookingsCommands)
-	orchestratorInterval := time.Duration(cfg.Orchestrator.Interval) * time.Hour
-	go bookingsOrchestrator.StartScheduledSync(context.Background(), orchestratorInterval)
-	defer bookingsOrchestrator.GracefulStop()
+	bookingsOrchestrator := app.NewBookingsOrchestrator(l, spaceXCommands, spaceXQueries, bookingsCommands, syncCommands)
+	fmt.Println(bookingsOrchestrator.SyncOnce(context.Background(), 0))
+	// orchestratorInterval := time.Duration(cfg.Orchestrator.Interval) * time.Hour
+	// go bookingsOrchestrator.StartScheduledSync(context.Background(), orchestratorInterval)
+	// defer bookingsOrchestrator.GracefulStop()
 
 	// -------------------------------------------------------------------------
 	// Setup Controller Layer

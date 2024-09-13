@@ -20,9 +20,14 @@ func NewSpaceXCommands(logger logger.Interface, client domain.SpaceXAPIQueries, 
 	return spacex.NewCommands(logger, client, launchPadRepo, launchesRepo)
 }
 
+// NewSpaceXQueries creates a new instance of SpaceX Queries
+func NewSpaceXQueries(logger logger.Interface, client domain.SpaceXAPIQueries) spacex.Queries {
+	return spacex.NewQueries(logger, client)
+}
+
 // NewBookingsCommands creates a new instance of Booking Commands
-func NewBookingsCommands(logger logger.Interface) bookings.Commands {
-	return bookings.NewCommands(logger)
+func NewBookingsCommands(logger logger.Interface, repo domain.BookingRepoCommands) bookings.Commands {
+	return bookings.NewCommands(logger, repo)
 }
 
 // NewSyncCommands creates a new instance of Sync Commands
