@@ -2,10 +2,16 @@ package spacexapi
 
 import (
 	"context"
+	"time"
 )
 
 type Launch struct {
-	ID string `json:"id"`
+	ID          string    `json:"id"`
+	Name        string    `json:"name"`
+	DateUTC     time.Time `json:"date_utc"`
+	DateUnix    int64     `json:"date_unix"`
+	LaunchPadID string    `json:"launchpad"`
+	Upcoming    bool      `json:"upcoming"`
 }
 
 type LaunchFilters struct {

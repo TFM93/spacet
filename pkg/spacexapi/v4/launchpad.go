@@ -5,7 +5,12 @@ import (
 )
 
 type LaunchPad struct {
-	ID string `json:"id"`
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Locality string `json:"locality"`
+	Region   string `json:"region"`
+	Timezone string `json:"timezone"`
+	Status   string `json:"status"`
 }
 
 type LaunchPadFilters struct {
@@ -28,6 +33,6 @@ func (c *client) GetAllLaunchPads(ctx context.Context, filters *LaunchPadFilters
 }
 
 func (c *client) GetLaunchPads(ctx context.Context, filters *FiltersWithPagination) (hasMoreData bool, _ []*LaunchPad, _ error) {
-	endpoint := c.baseURL + "/landpads/query"
+	endpoint := c.baseURL + "/launchpads/query"
 	return get[LaunchPadFilters, *LaunchPad](c, ctx, endpoint, filters)
 }
