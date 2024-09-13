@@ -10,3 +10,13 @@ var (
 	ErrInvalidPaginationCursor = fmt.Errorf("cursor must be a base64 string")
 	ErrEmptyRequest            = fmt.Errorf("empty request")
 )
+
+// Launches Errors
+var (
+	ErrLaunchAlreadyExists = fmt.Errorf("launch already exists")
+)
+
+// LaunchPad Errors
+var (
+	ErrLaunchPadAlreadyExists = fmt.Errorf("launchpad already exists")
+)

@@ -45,7 +45,6 @@ func (h *handler) SyncOnce(ctx context.Context) error {
 
 func (h *handler) StartScheduledSync(ctx context.Context, interval time.Duration) {
 	ticker := time.NewTicker(interval)
-	defer ticker.Stop()
 	h.l.Info("Bookings-Scheduler: Starting")
 	for {
 		select {
