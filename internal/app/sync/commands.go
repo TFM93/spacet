@@ -25,19 +25,18 @@ func NewCommands(logger logger.Interface, transaction domain.Transaction, repo d
 
 // SyncIfNecessary checks if a month has passed and updates the resource if needed
 func (h *handler) SyncIfNecessary(ctx context.Context, resourceName string, syncInterval time.Duration, syncFn domain.SyncAction) error {
+	lockKey := h.lockKeyGenerator(resourceName)
+	locked, err := h.syncRepo.TryDistributedLock(ctx, lockKey)
+	if err != nil {
+		return fmt.Errorf("failed to acquire advisory lock: %w", err)
+	}
+	if !locked {
+		// Another instance holds the lock, skip the sync
+		return nil
+	}
+	defer h.syncRepo.ReleaseDistributedLock(ctx, lockKey)
+
 	return h.transaction.BeginTx(ctx, func(ctx context.Context) error {
-		lockKey := h.lockKeyGenerator(resourceName)
-		locked, err := h.syncRepo.TryDistributedLock(ctx, lockKey)
-		if err != nil {
-			return fmt.Errorf("failed to acquire advisory lock: %w", err)
-		}
-
-		if !locked {
-			// Another instance holds the lock, skip the sync
-			return nil
-		}
-		defer h.syncRepo.ReleaseDistributedLock(ctx, lockKey)
-
 		lastSync, err := h.syncRepo.GetLastSyncTimestamp(ctx, resourceName)
 		if err != nil {
 			return fmt.Errorf("failed to fetch last sync timestamp: %w", err)
