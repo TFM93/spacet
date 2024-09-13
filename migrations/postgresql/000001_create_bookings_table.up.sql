@@ -14,15 +14,11 @@ CREATE TABLE IF NOT EXISTS bookings(
    last_name VARCHAR(25)  NOT NULL,
    gender gender DEFAULT 'UNSPECIFIED',
    birthday DATE,
-   launch_date DATE NOT NULL,
-   launchpad_id VARCHAR(25),
-
    created_at TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
    updated_at TIMESTAMPTZ NOT NULL DEFAULT current_timestamp
 );
 
 CREATE INDEX idx_bookings_updated_at_id ON bookings (updated_at DESC, id DESC);
-CREATE INDEX idx_bookings_launch_date_id ON bookings (launch_date DESC, id DESC);
 
 CREATE TRIGGER set_updated_at
 BEFORE UPDATE ON bookings

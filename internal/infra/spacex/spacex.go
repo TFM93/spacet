@@ -31,7 +31,7 @@ func (h *handler) GetUpcomingLaunches(ctx context.Context) (ret []*domain.Launch
 	for _, l := range launches {
 		ret = append(ret,
 			&domain.Launch{
-				ID:          l.ID,
+				ExternalID:  l.ID,
 				Domain:      domain.SpaceXDomain,
 				Name:        l.Name,
 				DateUTC:     l.DateUTC,

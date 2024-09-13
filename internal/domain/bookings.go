@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"time"
 
 	"github.com/google/uuid"
@@ -9,6 +10,7 @@ import (
 type (
 	// BookingRepoQueries is an interface for persisting bookings
 	BookingRepoCommands interface {
+		Cancel(_ context.Context, days []LaunchRestriction) (cancelled []uuid.UUID, err error)
 	}
 
 	// BookingRepoQueries is an interface for query persisted bookings

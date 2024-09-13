@@ -21,16 +21,25 @@ type (
 		// If the launch already exists or a conflict is found, it returns domain.ErrLaunchAlreadyExists.
 		// If an internal error occurs, it logs the error and returns domain.ErrInternal.
 		SaveLaunch(ctx context.Context, launch *Launch) (string, error)
+		// SaveLaunchesBatch creates a batch of launches in the database.
+		SaveLaunchesBatch(ctx context.Context, launches []*Launch) error
 	}
 
 	// Launch represents a Launch in the domain model
 	Launch struct {
 		ID          string
+		ExternalID  string
 		Domain      LaunchDomain
 		Name        string
 		DateUTC     time.Time
 		DateUnix    int64
 		LaunchPadID string
-		Destination Destination
+		Destination *Destination
+		Status      string
+	}
+
+	LaunchRestriction struct {
+		DateUTC     time.Time
+		LaunchPadID string
 	}
 )
