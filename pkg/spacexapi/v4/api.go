@@ -74,16 +74,6 @@ func get[T, V any](c *client, ctx context.Context, endpoint string, filters *Fil
 		return hasMoreData, nil, fmt.Errorf("decoding response: %w", err)
 	}
 
-	//todo- compare advantages over this:
-	// data, err := io.ReadAll(resp.Body)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// if err := json.Unmarshal(data, &target); err != nil {
-	// 	return nil, err
-	// }
-
 	return parsedResp.HasNextPage, parsedResp.Docs, nil
 }
 

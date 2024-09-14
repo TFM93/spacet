@@ -58,21 +58,22 @@ func run(cfg *config.Config, l logger.Interface) error {
 
 	txSupplier := postgresql.NewTransactionSupplier(pg)
 
-	lpRepo := postgresql.NewLaunchPadCommandsRepo(pg, l)
-	lRepo := postgresql.NewLaunchesCommandsRepo(pg, l)
+	lpadCmdRepo := postgresql.NewLaunchPadCommandsRepo(pg, l)
+	lauchesCmdRepo := postgresql.NewLaunchesCommandsRepo(pg, l)
+	launchesQrRepo := postgresql.NewLaunchesQueriesRepo(pg, l)
 	spacexClient := spacex.NewSpaceXQueries(l)
 
 	// -------------------------------------------------------------------------
 	// Setup Service Layer
 
 	healthCheckQueries := app.NewHealthCheckQueries()
-	spaceXCommands := app.NewSpaceXCommands(l, spacexClient, lpRepo, lRepo)
+	spaceXCommands := app.NewSpaceXCommands(l, spacexClient, lpadCmdRepo, lauchesCmdRepo)
 	spaceXQueries := app.NewSpaceXQueries(l, spacexClient)
-	bookingsCommands := app.NewBookingsCommands(l, postgresql.NewBookingCommandsRepo(pg, l))
+	bookingsCommands := app.NewBookingsCommands(l, txSupplier, postgresql.NewBookingCommandsRepo(pg, l), lauchesCmdRepo, launchesQrRepo)
 	syncCommands := app.NewSyncCommands(l, txSupplier, postgresql.NewSyncCommandsRepo(pg, l))
 
 	// updates the launchpad every 30 days
-	// todo: run this as a schedule and configure the launchpad frequency on configs
+	// TODO: run this as a schedule and configure the launchpad frequency on configs
 	if err := syncCommands.SyncIfNecessary(context.Background(), "launchpads", 30*24*time.Hour, spaceXCommands.UpdateLaunchPads); err != nil {
 		l.Error("failed to sync launchpads: %s", err)
 	}

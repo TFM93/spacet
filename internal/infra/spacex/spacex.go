@@ -35,7 +35,6 @@ func (h *handler) GetUpcomingLaunches(ctx context.Context) (ret []*domain.Launch
 				Domain:      domain.SpaceXDomain,
 				Name:        l.Name,
 				DateUTC:     l.DateUTC,
-				DateUnix:    l.DateUnix,
 				LaunchPadID: l.LaunchPadID,
 			},
 		)

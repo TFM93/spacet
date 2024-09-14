@@ -2,6 +2,7 @@ package launches
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"spacet/internal/domain"
 	log "spacet/pkg/logger"
@@ -21,10 +22,14 @@ func (r CommandsRepo) db(ctx context.Context) postgresql.DBProvider {
 	return r.PG.GetPool()
 }
 
-func (r *CommandsRepo) SaveLaunch(ctx context.Context, launch *domain.Launch) (id string, err error) {
+// SaveLaunch creates a new launch in the database.
+// Returns the created Launch's ID and an error in case of failure.
+// If the launch already exists or a conflict is found, it returns domain.ErrLaunchAlreadyExists.
+// If an internal error occurs, it logs the error and returns domain.ErrInternal.
+func (r *CommandsRepo) CreateLaunch(ctx context.Context, launch domain.Launch) (id string, err error) {
 	query := `
-	INSERT INTO launches (external_id, domain, launch_name, date_utc, launchpad_id, destination)
-	VALUES ($1, $2, $3, $4, $5, $6)
+	INSERT INTO launches (external_id, domain, launch_name, date_utc, launchpad_id, destination, booking_id)
+	VALUES ($1, $2, $3, $4, $5, $6, $7)
 	RETURNING id
 	`
 	err = r.db(ctx).QueryRow(ctx, query,
@@ -33,7 +38,8 @@ func (r *CommandsRepo) SaveLaunch(ctx context.Context, launch *domain.Launch) (i
 		launch.Name,
 		launch.DateUTC,
 		launch.LaunchPadID,
-		launch.Destination).Scan(&id)
+		launch.Destination,
+		sql.NullString{Valid: len(launch.BookingID) > 0, String: launch.BookingID.String()}).Scan(&id)
 	if err != nil {
 		if postgresql.IsConflictErr(err) {
 			r.L.Debug(fmt.Errorf("launch %s already exists: %w", launch.ID, err))
@@ -45,10 +51,13 @@ func (r *CommandsRepo) SaveLaunch(ctx context.Context, launch *domain.Launch) (i
 	return id, nil
 }
 
-func (r *CommandsRepo) SaveLaunchesBatch(ctx context.Context, launches []*domain.Launch) (err error) {
+// SaveExternalLaunches creates a batch of launches in the database without associated booking.
+// If an internal error occurs, it logs the error and returns domain.ErrInternal.
+func (r *CommandsRepo) SaveExternalLaunches(ctx context.Context, launches []*domain.Launch) (err error) {
 	// Prepare the insert query
-	query := `INSERT INTO launches (external_id, domain, launch_name, date_utc, launchpad_id, destination, lstatus
-		) VALUES %s ON CONFLICT (external_id) DO NOTHING`
+	query := `INSERT INTO 
+	launches (external_id, domain, launch_name, date_utc, launchpad_id, destination, lstatus)
+	 VALUES %s ON CONFLICT (external_id) DO NOTHING`
 
 	const nrArgs int = 7
 	args := make([]interface{}, 0, len(launches)*nrArgs)

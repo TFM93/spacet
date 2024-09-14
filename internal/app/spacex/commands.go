@@ -8,8 +8,12 @@ import (
 )
 
 type Commands interface {
-	// TODO: describe
-	SaveLaunches(ctx context.Context, launches []*domain.Launch) (err error)
+	// SaveLaunches command persists the external launches (without a booking), in batches of 100 elements.
+	// It should be called within a transaction to ensure atomicity.
+	SaveExternalLaunches(ctx context.Context, launches []*domain.Launch) (err error)
+
+	// UpdateLaunchPads reads the launchpads from the spacexapi and persists them.
+	// It should be called within a transaction to ensure atomicity.
 	UpdateLaunchPads(ctx context.Context) (err error)
 }
 
@@ -24,9 +28,7 @@ func NewCommands(logger logger.Interface, client domain.SpaceXAPIQueries, launch
 	return &commandsHandler{l: logger, launchPadRepo: launchPadRepo, launchesRepo: launchesRepo, spacexClient: client}
 }
 
-// UpdateLaunches ... todo describe.
-// This function must be called within a transaction to ensure atomicity.
-func (h commandsHandler) SaveLaunches(ctx context.Context, launches []*domain.Launch) (err error) {
+func (h commandsHandler) SaveExternalLaunches(ctx context.Context, launches []*domain.Launch) (err error) {
 	h.l.Debug("Updating Launches")
 	// batches of 100 elements
 	var batchSize int = 100
@@ -39,7 +41,7 @@ func (h commandsHandler) SaveLaunches(ctx context.Context, launches []*domain.La
 
 		batch := launches[i:end]
 
-		if err := h.launchesRepo.SaveLaunchesBatch(ctx, batch); err != nil {
+		if err := h.launchesRepo.SaveExternalLaunches(ctx, batch); err != nil {
 			return fmt.Errorf("failed to save launches batch: %w", err)
 		}
 	}
@@ -48,10 +50,7 @@ func (h commandsHandler) SaveLaunches(ctx context.Context, launches []*domain.La
 	return nil
 }
 
-// UpdateLaunchPads ... todo describe.
-// This function must be called within a transaction to ensure atomicity.
 func (h commandsHandler) UpdateLaunchPads(ctx context.Context) error {
-	//todo: handle errors
 	h.l.Debug("Updating Launchpads")
 	lpads, err := h.spacexClient.GetLaunchPads(ctx)
 	if err != nil {

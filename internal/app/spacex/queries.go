@@ -7,6 +7,7 @@ import (
 )
 
 type Queries interface {
+	// GetUpcomingLaunches fetches the upcoming launches from the spacex api
 	GetUpcomingLaunches(ctx context.Context) ([]*domain.Launch, error)
 }
 
@@ -19,7 +20,6 @@ func NewQueries(logger logger.Interface, client domain.SpaceXAPIQueries) Queries
 	return &queriesHandler{l: logger, spacexClient: client}
 }
 
-// GetUpcomingLaunches ... todo describe.
 func (h queriesHandler) GetUpcomingLaunches(ctx context.Context) ([]*domain.Launch, error) {
 	return h.spacexClient.GetUpcomingLaunches(ctx)
 }

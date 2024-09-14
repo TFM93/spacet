@@ -18,5 +18,13 @@ var (
 
 // LaunchPad Errors
 var (
-	ErrLaunchPadAlreadyExists = fmt.Errorf("launchpad already exists")
+	ErrLaunchPadAlreadyExists          = fmt.Errorf("launchpad already exists")
+	ErrLaunchPadUnavailableDate        = fmt.Errorf("launchpad is not available on the specified date")
+	ErrLaunchPadUnavailableDestination = fmt.Errorf("launchpad is not available on the specified destination on this day")
+)
+
+// Destination Errors
+
+var (
+	ErrInvalidDestination = fmt.Errorf("invalid destination")
 )

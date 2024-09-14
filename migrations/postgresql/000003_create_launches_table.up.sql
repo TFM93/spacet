@@ -18,6 +18,9 @@ CREATE TABLE IF NOT EXISTS launches(
 CREATE INDEX idx_launches_with_bookings_by_date ON launches (booking_id, date_utc)
 WHERE booking_id IS NOT NULL;
 
+CREATE INDEX idx_launches_domain_status_lpad_date
+ON launches (domain, lstatus, launchpad_id, trunc_date(date_utc));
+
 CREATE OR REPLACE FUNCTION trunc_date(timestamptz) RETURNS date AS $$
     SELECT date_trunc('day', $1)::date;
 $$ LANGUAGE SQL IMMUTABLE;

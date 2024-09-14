@@ -9,6 +9,7 @@ import (
 )
 
 type Commands interface {
+	// SyncIfNecessary checks if a month has passed and updates the resource if needed
 	SyncIfNecessary(ctx context.Context, resourceName string, syncInterval time.Duration, syncFn domain.SyncAction) error
 }
 
@@ -44,13 +45,11 @@ func (h *handler) SyncIfNecessary(ctx context.Context, resourceName string, sync
 
 		utcNow := time.Now().UTC()
 		if utcNow.Sub(lastSync) >= syncInterval {
-			// Perform the sync action
 			err = syncFn(ctx)
 			if err != nil {
 				return fmt.Errorf("sync action failed: %w", err)
 			}
 
-			// Update sync_info
 			err = h.syncRepo.UpdateLastSyncTimestamp(ctx, resourceName, utcNow)
 			if err != nil {
 				return fmt.Errorf("failed to update last sync timestamp: %w", err)
