@@ -104,7 +104,7 @@ func (h handler) BookALaunch(ctx context.Context, req BookALaunchReq) (ticket do
 
 		// build ticket
 		ticket = domain.Ticket{
-			ID:          booking.ID,
+			ID:          bookingID,
 			FirstName:   booking.FirstName,
 			LastName:    booking.LastName,
 			LaunchPadID: launch.LaunchPadID,
