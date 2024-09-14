@@ -9,3 +9,7 @@ proto:
 .PHONY: test
 test:
 	go test ./...
+
+.PHONY: mocks
+mocks:
+	mockery

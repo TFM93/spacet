@@ -3,9 +3,6 @@ package app
 import (
 	"context"
 	"fmt"
-	"spacet/internal/app/bookings"
-	"spacet/internal/app/spacex"
-	appsync "spacet/internal/app/sync"
 	"spacet/pkg/logger"
 	"sync"
 	"time"
@@ -22,16 +19,20 @@ type BookingsOrchestrator interface {
 
 type handler struct {
 	l                logger.Interface
-	spaceXCommands   spacex.Commands
-	spaceXQueries    spacex.Queries
-	bookingsCommands bookings.Commands
-	appsync          appsync.Commands
+	spaceXCommands   SpaceXServiceCommands
+	spaceXQueries    SpaceXServiceQueries
+	bookingsCommands BookingsServiceCommands
+	appsync          SyncServiceCommands
 	stopChan         chan struct{}
 	wg               sync.WaitGroup
 	once             sync.Once
 }
 
-func NewBookingsOrchestrator(logger logger.Interface, spaceXCommands spacex.Commands, spaceXQueries spacex.Queries, bookingsCommands bookings.Commands, syncCommands appsync.Commands) BookingsOrchestrator {
+func NewBookingsOrchestrator(logger logger.Interface,
+	spaceXCommands SpaceXServiceCommands,
+	spaceXQueries SpaceXServiceQueries,
+	bookingsCommands BookingsServiceCommands,
+	syncCommands SyncServiceCommands) BookingsOrchestrator {
 	return &handler{
 		l:                logger,
 		spaceXCommands:   spaceXCommands,

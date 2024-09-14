@@ -1,0 +1,31 @@
+quiet: False
+disable-version-string: True
+with-expecter: True
+mockname: "{{.InterfaceName}}"
+filename: "{{.MockName}}.go"
+outpkg: mocks
+dir: "gen/mocks/{{.PackagePath}}"
+packages:
+    spacet/pkg/logger:
+      config:
+      interfaces:
+          Interface:
+              config:
+    spacet/pkg/postgresql:
+      config:
+      interfaces:
+          DBProvider:
+              config:
+          Tx:
+              config:
+          Interface:
+              config:
+    spacet/internal/domain:
+      config:
+        all: True
+        dir: "gen/mocks/spacet/domain"
+    spacet/internal/app:
+      config:
+        all: True
+        dir: "gen/mocks/spacet/app"
+    
