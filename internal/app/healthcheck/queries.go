@@ -2,6 +2,7 @@ package healthcheck
 
 import (
 	"context"
+	"spacet/internal/domain"
 )
 
 // Queries is an interface for checking the health of application dependencies
@@ -10,16 +11,16 @@ type Queries interface {
 }
 
 type healthCheckQueries struct {
+	repo domain.MonitoringInfraQueries
 }
 
 // NewQueries creates a service that satisfies the interface HealthCheckQueries
-func NewQueries() Queries {
-	return &healthCheckQueries{}
+func NewQueries(repo domain.MonitoringInfraQueries) Queries {
+	return &healthCheckQueries{repo: repo}
 }
 
 // Check pings the following dependencies:
 // - repository
 func (h *healthCheckQueries) Check(ctx context.Context) bool {
-	// todo: implement repository healthcheck
-	return true
+	return h.repo.Ping(ctx)
 }

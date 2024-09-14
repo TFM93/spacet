@@ -66,7 +66,7 @@ func run(cfg *config.Config, l logger.Interface) error {
 	// -------------------------------------------------------------------------
 	// Setup Service Layer
 
-	healthCheckQueries := app.NewHealthCheckQueries()
+	healthCheckQueries := app.NewHealthCheckQueries(pg)
 	spaceXCommands := app.NewSpaceXCommands(l, spacexClient, lpadCmdRepo, lauchesCmdRepo)
 	spaceXQueries := app.NewSpaceXQueries(l, spacexClient)
 	bookingsCommands := app.NewBookingsCommands(l, txSupplier, postgresql.NewBookingCommandsRepo(pg, l), lauchesCmdRepo, launchesQrRepo)

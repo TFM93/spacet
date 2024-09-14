@@ -11,8 +11,8 @@ import (
 )
 
 // NewHealthCheckQueries creates an instance of HealthCheck Queries that satisfies HealthCheckQueries interface
-func NewHealthCheckQueries() healthcheck.Queries {
-	return healthcheck.NewQueries()
+func NewHealthCheckQueries(repo domain.MonitoringInfraQueries) healthcheck.Queries {
+	return healthcheck.NewQueries(repo)
 }
 
 // NewSpaceXCommands creates a new instance of SpaceX Commands
