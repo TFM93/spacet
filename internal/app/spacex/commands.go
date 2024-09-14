@@ -57,8 +57,9 @@ func (h commandsHandler) UpdateLaunchPads(ctx context.Context) error {
 		return err
 	}
 	for _, lpad := range lpads {
-		_, err = h.launchPadRepo.SaveLaunchPad(ctx, lpad)
+		if _, err := h.launchPadRepo.SaveLaunchPad(ctx, lpad); err != nil {
+			return err
+		}
 	}
-
-	return err
+	return nil
 }
