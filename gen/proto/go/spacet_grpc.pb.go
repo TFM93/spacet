@@ -32,7 +32,7 @@ const (
 type SpaceTServiceClient interface {
 	LaunchBooking(ctx context.Context, in *BookingRequest, opts ...grpc.CallOption) (*Ticket, error)
 	CancelBooking(ctx context.Context, in *TicketID, opts ...grpc.CallOption) (*TicketID, error)
-	ListBookings(ctx context.Context, in *ListBookingsRequest, opts ...grpc.CallOption) (*ListBookingsResponse, error)
+	ListBookings(ctx context.Context, in *ListTicketsRequest, opts ...grpc.CallOption) (*ListTicketsResponse, error)
 }
 
 type spaceTServiceClient struct {
@@ -63,9 +63,9 @@ func (c *spaceTServiceClient) CancelBooking(ctx context.Context, in *TicketID, o
 	return out, nil
 }
 
-func (c *spaceTServiceClient) ListBookings(ctx context.Context, in *ListBookingsRequest, opts ...grpc.CallOption) (*ListBookingsResponse, error) {
+func (c *spaceTServiceClient) ListBookings(ctx context.Context, in *ListTicketsRequest, opts ...grpc.CallOption) (*ListTicketsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListBookingsResponse)
+	out := new(ListTicketsResponse)
 	err := c.cc.Invoke(ctx, SpaceTService_ListBookings_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -81,7 +81,7 @@ func (c *spaceTServiceClient) ListBookings(ctx context.Context, in *ListBookings
 type SpaceTServiceServer interface {
 	LaunchBooking(context.Context, *BookingRequest) (*Ticket, error)
 	CancelBooking(context.Context, *TicketID) (*TicketID, error)
-	ListBookings(context.Context, *ListBookingsRequest) (*ListBookingsResponse, error)
+	ListBookings(context.Context, *ListTicketsRequest) (*ListTicketsResponse, error)
 	mustEmbedUnimplementedSpaceTServiceServer()
 }
 
@@ -98,7 +98,7 @@ func (UnimplementedSpaceTServiceServer) LaunchBooking(context.Context, *BookingR
 func (UnimplementedSpaceTServiceServer) CancelBooking(context.Context, *TicketID) (*TicketID, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelBooking not implemented")
 }
-func (UnimplementedSpaceTServiceServer) ListBookings(context.Context, *ListBookingsRequest) (*ListBookingsResponse, error) {
+func (UnimplementedSpaceTServiceServer) ListBookings(context.Context, *ListTicketsRequest) (*ListTicketsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListBookings not implemented")
 }
 func (UnimplementedSpaceTServiceServer) mustEmbedUnimplementedSpaceTServiceServer() {}
@@ -159,7 +159,7 @@ func _SpaceTService_CancelBooking_Handler(srv interface{}, ctx context.Context, 
 }
 
 func _SpaceTService_ListBookings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListBookingsRequest)
+	in := new(ListTicketsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -171,7 +171,7 @@ func _SpaceTService_ListBookings_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: SpaceTService_ListBookings_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SpaceTServiceServer).ListBookings(ctx, req.(*ListBookingsRequest))
+		return srv.(SpaceTServiceServer).ListBookings(ctx, req.(*ListTicketsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

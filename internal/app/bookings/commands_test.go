@@ -276,6 +276,8 @@ func Test_handler_BookALaunch(t *testing.T) {
 				LastName:    "em",
 				LaunchPadID: "testID",
 				LaunchDate:  tnow.UTC(),
+				Status:      "scheduled",
+				Destination: domain.DestinationMars.ToString(),
 			},
 			wantErr: nil,
 		},

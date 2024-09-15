@@ -13,7 +13,7 @@ import (
 
 // Setup creates a grpcServer, configures the necessary interceptors and registers the following services:
 // - RegisterSpaceTServiceServer
-func Setup(l logger.Interface, bookingsCmds app.BookingsServiceCommands) (*grpc.Server, error) {
+func Setup(l logger.Interface, bookingsCmds app.BookingsServiceCommands, bookingsQrs app.BookingsServiceQueries) (*grpc.Server, error) {
 	if l == nil {
 		return nil, fmt.Errorf("invalid input parameters: logger must not be nil")
 	}
@@ -22,7 +22,7 @@ func Setup(l logger.Interface, bookingsCmds app.BookingsServiceCommands) (*grpc.
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize validator: %w", err)
 	}
-	gen.RegisterSpaceTServiceServer(server, &SpaceTHandler{l: l, protoValidator: v, bookingsCommands: bookingsCmds})
+	gen.RegisterSpaceTServiceServer(server, &SpaceTHandler{l: l, protoValidator: v, bookingsCommands: bookingsCmds, bookingsQueries: bookingsQrs})
 	return server, nil
 }
 

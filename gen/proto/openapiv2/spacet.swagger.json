@@ -23,7 +23,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1ListBookingsResponse"
+              "$ref": "#/definitions/v1ListTicketsResponse"
             }
           },
           "default": {
@@ -62,29 +62,19 @@
             "type": "string"
           },
           {
-            "name": "gender",
-            "description": " - UNSPECIFIED: user might not want to provide this info",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "enum": [
-              "UNSPECIFIED",
-              "MALE",
-              "FEMALE",
-              "NON_BINARY",
-              "OTHER"
-            ],
-            "default": "UNSPECIFIED"
-          },
-          {
-            "name": "launchDate",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time"
-          },
-          {
             "name": "launchpadId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "destination",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "status",
             "in": "query",
             "required": false,
             "type": "string"
@@ -185,34 +175,6 @@
         }
       }
     },
-    "v1Booking": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "firstName": {
-          "type": "string"
-        },
-        "lastName": {
-          "type": "string"
-        },
-        "gender": {
-          "$ref": "#/definitions/v1Gender"
-        },
-        "birthday": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "launchpadId": {
-          "type": "string"
-        },
-        "launchDate": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
     "v1BookingRequest": {
       "type": "object",
       "properties": {
@@ -268,14 +230,14 @@
       "default": "UNSPECIFIED",
       "title": "- UNSPECIFIED: user might not want to provide this info"
     },
-    "v1ListBookingsResponse": {
+    "v1ListTicketsResponse": {
       "type": "object",
       "properties": {
-        "bookings": {
+        "tickets": {
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1Booking"
+            "$ref": "#/definitions/v1Ticket"
           }
         },
         "nextCursor": {
@@ -295,12 +257,18 @@
         "lastName": {
           "type": "string"
         },
-        "launchpadId": {
-          "type": "string"
-        },
         "launchDate": {
           "type": "string",
           "format": "date-time"
+        },
+        "launchpadId": {
+          "type": "string"
+        },
+        "destinationId": {
+          "$ref": "#/definitions/v1Destination"
+        },
+        "status": {
+          "type": "string"
         }
       }
     },

@@ -23,6 +23,9 @@ type SpaceXServiceQueries interface {
 type BookingsServiceCommands interface {
 	bookings.Commands
 }
+type BookingsServiceQueries interface {
+	bookings.Queries
+}
 type SyncServiceCommands interface {
 	sync.Commands
 }
@@ -45,6 +48,11 @@ func NewSpaceXQueries(logger logger.Interface, client domain.SpaceXAPIQueries) S
 // NewBookingsCommands creates a new instance of Booking Commands
 func NewBookingsCommands(logger logger.Interface, transaction domain.Transaction, bookingCmds domain.BookingRepoCommands, launchesCmds domain.LaunchRepoCommands, launchesQrs domain.LaunchRepoQueries) BookingsServiceCommands {
 	return bookings.NewCommands(logger, transaction, bookingCmds, launchesCmds, launchesQrs)
+}
+
+// NewBookingsQueries creates a new instance of Booking Queries
+func NewBookingsQueries(logger logger.Interface, transaction domain.Transaction, bookingQrs domain.BookingRepoQueries) BookingsServiceQueries {
+	return bookings.NewQueries(logger, bookingQrs)
 }
 
 // NewSyncCommands creates a new instance of Sync Commands

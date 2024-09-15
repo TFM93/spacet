@@ -114,7 +114,7 @@ var (
 )
 
 func request_SpaceTService_ListBookings_0(ctx context.Context, marshaler runtime.Marshaler, client SpaceTServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListBookingsRequest
+	var protoReq ListTicketsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -130,7 +130,7 @@ func request_SpaceTService_ListBookings_0(ctx context.Context, marshaler runtime
 }
 
 func local_request_SpaceTService_ListBookings_0(ctx context.Context, marshaler runtime.Marshaler, server SpaceTServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListBookingsRequest
+	var protoReq ListTicketsRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {

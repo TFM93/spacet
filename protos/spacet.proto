@@ -22,7 +22,7 @@ service SpaceTService {
     };
   };
 
-  rpc ListBookings(ListBookingsRequest) returns (ListBookingsResponse) {
+  rpc ListBookings(ListTicketsRequest) returns (ListTicketsResponse) {
     option (google.api.http) = {
       get: "/v1/bookings"
     };
@@ -32,22 +32,14 @@ service SpaceTService {
 
 // Message definitions
 
-message Booking {
-  string id = 1;
-  string first_name = 2;
-  string last_name = 3;
-  Gender gender = 4; 
-  google.protobuf.Timestamp birthday = 5;
-  string launchpad_id = 6;
-  google.protobuf.Timestamp launch_date = 7;
-}
-
 message Ticket {
   string id = 1;
   string first_name = 2;
   string last_name = 3;
-  string launchpad_id = 5;
   google.protobuf.Timestamp launch_date = 4;
+  string launchpad_id = 5;
+  Destination destination_id = 6;
+  string status = 7;
 }
 
 message TicketID {
@@ -91,7 +83,7 @@ message BookingRequest {
 }
 
 
-message ListBookingsRequest {
+message ListTicketsRequest {
   // pagination
   int32 limit = 1 [(buf.validate.field).int32.gte = 1];
   optional string cursor = 2;
@@ -99,12 +91,12 @@ message ListBookingsRequest {
   // filters
   optional string first_name = 3 [(buf.validate.field).string.min_len = 3]; 
   optional string last_name = 4 [(buf.validate.field).string.min_len = 3]; 
-  optional Gender gender = 5; 
-  optional google.protobuf.Timestamp launch_date = 6; 
-  optional string launchpad_id = 7;
+  optional string launchpad_id = 5;
+  optional string destination = 6;
+  optional string status = 7;
 }
 
-message ListBookingsResponse {
-  repeated Booking bookings = 1;
+message ListTicketsResponse {
+  repeated Ticket tickets = 1;
   string next_cursor = 2;
 }

@@ -70,6 +70,7 @@ func run(cfg *config.Config, l logger.Interface) error {
 	spaceXCommands := app.NewSpaceXCommands(l, spacexClient, lpadCmdRepo, lauchesCmdRepo)
 	spaceXQueries := app.NewSpaceXQueries(l, spacexClient)
 	bookingsCommands := app.NewBookingsCommands(l, txSupplier, postgresql.NewBookingCommandsRepo(pg, l), lauchesCmdRepo, launchesQrRepo)
+	bookingsQueries := app.NewBookingsQueries(l, txSupplier, postgresql.NewBookingQueriesRepo(pg, l))
 	syncCommands := app.NewSyncCommands(l, txSupplier, postgresql.NewSyncCommandsRepo(pg, l))
 
 	// updates the launchpad every 30 days
@@ -91,7 +92,7 @@ func run(cfg *config.Config, l logger.Interface) error {
 		return fmt.Errorf("httpServer.Setup: %w", err)
 	}
 
-	settedUpServer, err := grpc.Setup(l, bookingsCommands)
+	settedUpServer, err := grpc.Setup(l, bookingsCommands, bookingsQueries)
 	if err != nil {
 		return fmt.Errorf("grpcServer.Setup: %w", err)
 	}

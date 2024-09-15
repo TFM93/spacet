@@ -114,6 +114,8 @@ func (h handler) BookALaunch(ctx context.Context, req BookALaunchReq) (ticket do
 			LastName:    booking.LastName,
 			LaunchPadID: launch.LaunchPadID,
 			LaunchDate:  launch.DateUTC,
+			Status:      launch.Status,
+			Destination: launch.Destination.ToString(),
 		}
 		return nil
 	})

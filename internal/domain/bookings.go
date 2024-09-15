@@ -20,6 +20,16 @@ type (
 
 	// BookingRepoQueries is an interface for query persisted bookings
 	BookingRepoQueries interface {
+		// ListTickets fetches a list of booked launches based on the provided filters and pagination options.
+		// Parameters:
+		//   cursorTicketID: ID of the booking to start listing from
+		//   cursorUpdatedAt: Timestamp to filter bookings updated after this time
+		//   limit: Maximum number of bookings to return
+		//   filters: Criteria to filter tickets by
+		// Returns a slice of booked launches objects and an error if the operation fails.
+		// If the query fails to execute, it returns return domain.ErrInternal.
+		// If theres an error processing the data, it returns domain.ErrFailedToProcessData.
+		ListTickets(ctx context.Context, cursorTicketID string, cursorUpdatedAt *time.Time, limit int32, filters TicketSearchFilters) ([]*Ticket, error)
 	}
 
 	// Booking represents a Booking in the domain model
@@ -29,8 +39,6 @@ type (
 		LastName  string
 		BirthDay  time.Time
 		Gender    Gender
-		CreatedAt time.Time
-		UpdatedAt time.Time
 	}
 
 	// Ticket is the result of a successfully scheduled booking
@@ -39,6 +47,19 @@ type (
 		FirstName   string
 		LastName    string
 		LaunchPadID string
+		Status      string
+		Destination string
 		LaunchDate  time.Time
+		CreatedAt   time.Time
+		UpdatedAt   time.Time
+	}
+
+	// TicketSearchFilters represents booked launches searchable fields
+	TicketSearchFilters struct {
+		FirstName   *string
+		LastName    *string
+		Destination *string
+		Status      *string
+		LaunchPadID *string
 	}
 )
