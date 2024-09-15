@@ -33,7 +33,7 @@ func (r *CommandsRepo) CreateLaunch(ctx context.Context, launch domain.Launch) (
 	RETURNING id
 	`
 	err = r.db(ctx).QueryRow(ctx, query,
-		launch.ID,
+		sql.NullString{Valid: len(launch.ExternalID) > 0, String: launch.ExternalID},
 		launch.Domain,
 		launch.Name,
 		launch.DateUTC,

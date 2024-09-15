@@ -25,6 +25,24 @@ func (r CommandsRepo) db(ctx context.Context) postgresql.DBProvider {
 	return r.PG.GetPool()
 }
 
+func (r *CommandsRepo) CancelByID(ctx context.Context, bookingID uuid.UUID) error {
+	query := `
+			UPDATE launches
+			SET lstatus = 'cancelled'
+			WHERE booking_id = $1
+		`
+	commandTag, err := r.db(ctx).Exec(ctx, query, bookingID)
+	if err != nil {
+		r.L.Error(fmt.Errorf("failed to cancel booking: %w", err))
+		return domain.ErrInternal
+	}
+	if commandTag.RowsAffected() == 0 {
+		r.L.Debug("launch with bookingID %s does not exist", bookingID)
+		return domain.ErrBookingNotFound
+	}
+	return nil
+}
+
 // Cancel changes the status of the launches to cancelled if they meet the launchPad daily restriction (only applies to the launches with booking)
 func (r *CommandsRepo) Cancel(ctx context.Context, restrictions map[string][]time.Time) (cancelledBookings []uuid.UUID, _ error) {
 	for launchPad, dates := range restrictions {

@@ -142,6 +142,53 @@ func (_c *BookingsServiceCommands_Cancel_Call) RunAndReturn(run func(context.Con
 	return _c
 }
 
+// CancelByID provides a mock function with given fields: ctx, bookingID
+func (_m *BookingsServiceCommands) CancelByID(ctx context.Context, bookingID string) error {
+	ret := _m.Called(ctx, bookingID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CancelByID")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, bookingID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// BookingsServiceCommands_CancelByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CancelByID'
+type BookingsServiceCommands_CancelByID_Call struct {
+	*mock.Call
+}
+
+// CancelByID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - bookingID string
+func (_e *BookingsServiceCommands_Expecter) CancelByID(ctx interface{}, bookingID interface{}) *BookingsServiceCommands_CancelByID_Call {
+	return &BookingsServiceCommands_CancelByID_Call{Call: _e.mock.On("CancelByID", ctx, bookingID)}
+}
+
+func (_c *BookingsServiceCommands_CancelByID_Call) Run(run func(ctx context.Context, bookingID string)) *BookingsServiceCommands_CancelByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *BookingsServiceCommands_CancelByID_Call) Return(err error) *BookingsServiceCommands_CancelByID_Call {
+	_c.Call.Return(err)
+	return _c
+}
+
+func (_c *BookingsServiceCommands_CancelByID_Call) RunAndReturn(run func(context.Context, string) error) *BookingsServiceCommands_CancelByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewBookingsServiceCommands creates a new instance of BookingsServiceCommands. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewBookingsServiceCommands(t interface {

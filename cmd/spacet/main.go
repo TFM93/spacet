@@ -91,7 +91,7 @@ func run(cfg *config.Config, l logger.Interface) error {
 		return fmt.Errorf("httpServer.Setup: %w", err)
 	}
 
-	settedUpServer, err := grpc.Setup(l)
+	settedUpServer, err := grpc.Setup(l, bookingsCommands)
 	if err != nil {
 		return fmt.Errorf("grpcServer.Setup: %w", err)
 	}

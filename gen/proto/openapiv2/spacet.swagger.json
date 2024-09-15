@@ -237,8 +237,24 @@
           "type": "string",
           "format": "date-time",
           "title": "must be in the future"
+        },
+        "destinationId": {
+          "$ref": "#/definitions/v1Destination"
         }
       }
+    },
+    "v1Destination": {
+      "type": "string",
+      "enum": [
+        "MARS",
+        "MOON",
+        "PLUTO",
+        "ASTEROID_BELT",
+        "EUROPA",
+        "TITAN",
+        "GANYMEDE"
+      ],
+      "default": "MARS"
     },
     "v1Gender": {
       "type": "string",

@@ -7,13 +7,13 @@ func (d Destination) ToString() string {
 }
 
 const (
-	DestinationMars         Destination = "Mars"
-	DestinationMoon         Destination = "Moon"
-	DestinationPluto        Destination = "Pluto"
-	DestinationAsteroidBelt Destination = "Asteroid Belt"
-	DestinationEuropa       Destination = "Europa"
-	DestinationTitan        Destination = "Titan"
-	DestinationGanymede     Destination = "Ganymede"
+	DestinationMars         Destination = "MARS"
+	DestinationMoon         Destination = "MOON"
+	DestinationPluto        Destination = "PLUTO"
+	DestinationAsteroidBelt Destination = "ASTEROID_BELT"
+	DestinationEuropa       Destination = "EUROPA"
+	DestinationTitan        Destination = "TITAN"
+	DestinationGanymede     Destination = "GANYMEDE"
 )
 
 var validDestinations = []Destination{

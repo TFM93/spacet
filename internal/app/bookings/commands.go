@@ -16,6 +16,7 @@ type LaunchPadDateRestrictions map[string][]time.Time
 type Commands interface {
 	// Cancel command cancels the launches with bookings that collide in the LaunchPadDateRestrictions field.
 	Cancel(ctx context.Context, restriction LaunchPadDateRestrictions) (cancelled []uuid.UUID, err error)
+	CancelByID(ctx context.Context, bookingID string) (err error)
 	// BookALaunch command books a new launch if the launchpad is available.
 	// Note that the booking can be cancelled if spacex needs the platform.
 	BookALaunch(ctx context.Context, req BookALaunchReq) (createdBooking domain.Ticket, _ error)
@@ -35,6 +36,10 @@ func NewCommands(logger logger.Interface, transaction domain.Transaction, bookin
 
 func (h handler) Cancel(ctx context.Context, restriction LaunchPadDateRestrictions) (cancelled []uuid.UUID, err error) {
 	return h.bookingCmdsRepo.Cancel(ctx, restriction)
+}
+
+func (h handler) CancelByID(ctx context.Context, id string) (err error) {
+	return h.bookingCmdsRepo.CancelByID(ctx, uuid.MustParse(id))
 }
 
 type BookALaunchReq struct {

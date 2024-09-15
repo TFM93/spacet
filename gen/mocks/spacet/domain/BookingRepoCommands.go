@@ -85,6 +85,53 @@ func (_c *BookingRepoCommands_Cancel_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
+// CancelByID provides a mock function with given fields: ctx, id
+func (_m *BookingRepoCommands) CancelByID(ctx context.Context, id uuid.UUID) error {
+	ret := _m.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CancelByID")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
+		r0 = rf(ctx, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// BookingRepoCommands_CancelByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CancelByID'
+type BookingRepoCommands_CancelByID_Call struct {
+	*mock.Call
+}
+
+// CancelByID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id uuid.UUID
+func (_e *BookingRepoCommands_Expecter) CancelByID(ctx interface{}, id interface{}) *BookingRepoCommands_CancelByID_Call {
+	return &BookingRepoCommands_CancelByID_Call{Call: _e.mock.On("CancelByID", ctx, id)}
+}
+
+func (_c *BookingRepoCommands_CancelByID_Call) Run(run func(ctx context.Context, id uuid.UUID)) *BookingRepoCommands_CancelByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID))
+	})
+	return _c
+}
+
+func (_c *BookingRepoCommands_CancelByID_Call) Return(_a0 error) *BookingRepoCommands_CancelByID_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *BookingRepoCommands_CancelByID_Call) RunAndReturn(run func(context.Context, uuid.UUID) error) *BookingRepoCommands_CancelByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CreateBooking provides a mock function with given fields: ctx, booking
 func (_m *BookingRepoCommands) CreateBooking(ctx context.Context, booking domain.Booking) (uuid.UUID, error) {
 	ret := _m.Called(ctx, booking)

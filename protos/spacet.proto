@@ -62,6 +62,16 @@ enum Gender {
     OTHER = 4;
 }
 
+enum Destination {
+    MARS = 0;
+    MOON = 1;
+    PLUTO = 2;
+    ASTEROID_BELT = 3;
+    EUROPA = 4;
+    TITAN = 5;
+    GANYMEDE = 6;
+}
+
 // Request payloads
 
 message BookingRequest {
@@ -77,6 +87,7 @@ message BookingRequest {
   google.protobuf.Timestamp birthday = 4 [(buf.validate.field).timestamp.lt_now = true];  // must be in the past
   string launchpad_id = 5;
   google.protobuf.Timestamp launch_date = 6 [(buf.validate.field).timestamp.gt_now = true];  // must be in the future
+  Destination destination_id = 7;
 }
 
 

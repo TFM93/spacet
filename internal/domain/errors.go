@@ -28,3 +28,9 @@ var (
 var (
 	ErrInvalidDestination = fmt.Errorf("invalid destination")
 )
+
+// Booking Errors
+var (
+	ErrInvalidBookingID = fmt.Errorf("invalid booking uuid")
+	ErrBookingNotFound  = fmt.Errorf("booking not found")
+)
