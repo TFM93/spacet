@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	serviceMocks "spacet/gen/mocks/spacet/app"
+	domainMocks "spacet/gen/mocks/spacet/domain"
 	loggerMocks "spacet/gen/mocks/spacet/pkg/logger"
 	"spacet/internal/domain"
+
 	"testing"
 	"time"
 
@@ -22,6 +24,7 @@ func Test_handler_SyncOnce(t *testing.T) {
 	syncCmdsMock := serviceMocks.NewSyncServiceCommands(t)
 	spaceXCmdsMock := serviceMocks.NewSpaceXServiceCommands(t)
 	spaceXQrsMock := serviceMocks.NewSpaceXServiceQueries(t)
+	outboxCommandsMock := domainMocks.NewOutboxRepoCommands(t)
 
 	upcomingLaunches := []*domain.Launch{
 		{LaunchPadID: "test", DateUTC: tnow.UTC()},
@@ -97,7 +100,7 @@ func Test_handler_SyncOnce(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			h := NewBookingsOrchestrator(mockedLogger, spaceXCmdsMock, spaceXQrsMock, bookingsCmdsMock, syncCmdsMock)
+			h := NewBookingsOrchestrator(mockedLogger, spaceXCmdsMock, spaceXQrsMock, bookingsCmdsMock, syncCmdsMock, outboxCommandsMock)
 
 			if tt.expectedMocks != nil {
 				tt.expectedMocks()

@@ -2,10 +2,14 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"spacet/internal/domain"
 	"spacet/pkg/logger"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type BookingsOrchestrator interface {
@@ -23,6 +27,7 @@ type handler struct {
 	spaceXQueries    SpaceXServiceQueries
 	bookingsCommands BookingsServiceCommands
 	appsync          SyncServiceCommands
+	outboxRepo       domain.OutboxRepoCommands
 	stopChan         chan struct{}
 	wg               sync.WaitGroup
 	once             sync.Once
@@ -32,7 +37,8 @@ func NewBookingsOrchestrator(logger logger.Interface,
 	spaceXCommands SpaceXServiceCommands,
 	spaceXQueries SpaceXServiceQueries,
 	bookingsCommands BookingsServiceCommands,
-	syncCommands SyncServiceCommands) BookingsOrchestrator {
+	syncCommands SyncServiceCommands,
+	outboxRepo domain.OutboxRepoCommands) BookingsOrchestrator {
 	return &handler{
 		l:                logger,
 		spaceXCommands:   spaceXCommands,
@@ -40,12 +46,34 @@ func NewBookingsOrchestrator(logger logger.Interface,
 		bookingsCommands: bookingsCommands,
 		stopChan:         make(chan struct{}),
 		appsync:          syncCommands,
+		outboxRepo:       outboxRepo,
 	}
 }
 
+func (h *handler) sendCancelledNotification(txCtx context.Context, cancelled []uuid.UUID) error {
+	if len(cancelled) == 0 {
+		return nil
+	}
+	pl := domain.BookingsCancelledEventPayload{}
+	pl.FromUUIDs(cancelled)
+
+	payload, err := json.Marshal(pl)
+	if err != nil {
+		return err
+	}
+	event := &domain.Event{
+		Type:    "BookingsCancelled",
+		Payload: payload,
+	}
+	if _, err := h.outboxRepo.AddEvent(txCtx, event); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (h *handler) SyncOnce(ctx context.Context, syncInterval time.Duration) error {
-	return h.appsync.SyncIfNecessary(ctx, "sync_launches", syncInterval, func(ctx context.Context) error {
-		upcoming, err := h.spaceXQueries.GetUpcomingLaunches(ctx)
+	return h.appsync.SyncIfNecessary(ctx, "sync_launches", syncInterval, func(txCtx context.Context) error {
+		upcoming, err := h.spaceXQueries.GetUpcomingLaunches(txCtx)
 		if err != nil {
 			return fmt.Errorf("failed to get upcoming launches: %s", err)
 		}
@@ -55,17 +83,17 @@ func (h *handler) SyncOnce(ctx context.Context, syncInterval time.Duration) erro
 		}
 
 		// cancel all the launches with bookings and return them
-		cancelled, err := h.bookingsCommands.Cancel(ctx, datesPerLPad)
+		cancelled, err := h.bookingsCommands.Cancel(txCtx, datesPerLPad)
 		if err != nil {
 			return fmt.Errorf("failed to cancel bookings: %s", err)
 		}
 		h.l.Debug("%s bookings will be cancelled", len(cancelled), cancelled)
-		// TODO notify somehow the user by sending an event
 
-		if err := h.spaceXCommands.SaveExternalLaunches(ctx, upcoming); err != nil {
+		if err := h.spaceXCommands.SaveExternalLaunches(txCtx, upcoming); err != nil {
 			return fmt.Errorf("failed to save upcoming launches: %s", err)
 		}
-		return nil
+
+		return h.sendCancelledNotification(txCtx, cancelled)
 	})
 }
 

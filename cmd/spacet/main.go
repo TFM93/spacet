@@ -12,14 +12,19 @@ import (
 	"time"
 
 	"spacet/internal/app"
+	"spacet/internal/app/bookings"
 	"spacet/internal/controller/grpc"
 	"spacet/internal/controller/http"
+	"spacet/internal/domain"
+	"spacet/internal/infra/notification"
+	"spacet/internal/infra/outbox"
 	"spacet/internal/infra/postgresql"
 	"spacet/internal/infra/spacex"
 	"spacet/pkg/grpcserver"
 	"spacet/pkg/httpserver"
 	"spacet/pkg/logger"
 	postgres "spacet/pkg/postgresql"
+	"spacet/pkg/pubsub"
 )
 
 func main() {
@@ -57,11 +62,28 @@ func run(cfg *config.Config, l logger.Interface) error {
 	defer pg.Close()
 
 	txSupplier := postgresql.NewTransactionSupplier(pg)
+	outboxRepoCommands := postgresql.NewOutboxCommandsRepo(pg, l)
 
 	lpadCmdRepo := postgresql.NewLaunchPadCommandsRepo(pg, l)
 	lauchesCmdRepo := postgresql.NewLaunchesCommandsRepo(pg, l)
 	launchesQrRepo := postgresql.NewLaunchesQueriesRepo(pg, l)
 	spacexClient := spacex.NewSpaceXQueries(l)
+
+	pubsubClient, err := pubsub.New(cfg.PubSub.Enabled, cfg.PubSub.ProjectID, pubsub.WithLogger(l))
+	if err != nil {
+		return fmt.Errorf("pubsub.New: %w", err)
+	}
+
+	var notificationService domain.NotificationService
+	if cfg.PubSub.Enabled {
+		notificationService = notification.NewPubSubNotifierService(pubsubClient, l, cfg.PubSub.LaunchesTopic)
+	} else {
+		notificationService = notification.NewLoggerNotifierService(l)
+	}
+
+	outboxProcessor := outbox.NewProcessor(l, txSupplier, outboxRepoCommands, notificationService)
+	interval := time.Duration(cfg.Notifications.Interval) * time.Second
+	go outboxProcessor.StartScheduleProcess(context.Background(), interval, cfg.Notifications.MaxBatchSize)
 
 	// -------------------------------------------------------------------------
 	// Setup Service Layer
@@ -79,8 +101,18 @@ func run(cfg *config.Config, l logger.Interface) error {
 		l.Error("failed to sync launchpads: %s", err)
 	}
 
-	bookingsOrchestrator := app.NewBookingsOrchestrator(l, spaceXCommands, spaceXQueries, bookingsCommands, syncCommands)
+	fmt.Println(bookingsCommands.BookALaunch(context.Background(), bookings.BookALaunchReq{
+		LaunchpadID: "5e9e4501f509094ba4566f84",
+		Date:        time.Date(2022, 12, 01, 0, 0, 0, 0, time.UTC),
+		Destination: domain.DestinationAsteroidBelt,
+		FirstName:   "sd",
+		LastName:    "ds",
+		Gender:      domain.GenderFemale,
+		Birthday:    time.Date(1990, 12, 01, 0, 0, 0, 0, time.UTC),
+	}))
+	bookingsOrchestrator := app.NewBookingsOrchestrator(l, spaceXCommands, spaceXQueries, bookingsCommands, syncCommands, outboxRepoCommands)
 	orchestratorInterval := time.Duration(cfg.Orchestrator.Interval) * time.Hour
+	fmt.Sprintln(bookingsOrchestrator.SyncOnce(context.Background(), 0))
 	go bookingsOrchestrator.StartScheduledSync(context.Background(), orchestratorInterval)
 	defer bookingsOrchestrator.GracefulStop()
 

@@ -8,11 +8,13 @@ import (
 
 type (
 	Config struct {
-		App          `yaml:"app"`
-		HTTP         `yaml:"http"`
-		GRPC         `yaml:"grpc"`
-		Orchestrator `yaml:"orchestrator"`
-		PG           `yaml:"postgres"`
+		App           `yaml:"app"`
+		HTTP          `yaml:"http"`
+		GRPC          `yaml:"grpc"`
+		Orchestrator  `yaml:"orchestrator"`
+		PG            `yaml:"postgres"`
+		PubSub        `yaml:"pubsub"`
+		Notifications `yaml:"notifications"`
 	}
 
 	App struct {
@@ -35,6 +37,17 @@ type (
 	PG struct {
 		PoolMax int    `env-required:"true" yaml:"pool_max" env:"PG_POOL_MAX"`
 		DSN     string `env-required:"true" yaml:"dsn" env:"PG_DSN"`
+	}
+
+	Notifications struct {
+		MaxBatchSize int32 `env-required:"true" yaml:"batch_size_max" env:"NOTIFICATIONS_BATCH_SIZE_MAX"`
+		Interval     int   `env-required:"true" yaml:"interval" env:"NOTIFICATIONS_INTERVAL"`
+	}
+
+	PubSub struct {
+		Enabled       bool   `env-required:"true" yaml:"enabled" env:"PUBSUB_ENABLED"`
+		ProjectID     string `env-required:"true" yaml:"project_id" env:"PUBSUB_PROJECT_ID"`
+		LaunchesTopic string `env-required:"true" yaml:"launches_topic" env:"PUBSUB_LAUNCHES_TOPIC"`
 	}
 )
 

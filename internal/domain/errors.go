@@ -24,7 +24,6 @@ var (
 )
 
 // Destination Errors
-
 var (
 	ErrInvalidDestination = fmt.Errorf("invalid destination")
 )
@@ -33,4 +32,9 @@ var (
 var (
 	ErrInvalidBookingID = fmt.Errorf("invalid booking uuid")
 	ErrBookingNotFound  = fmt.Errorf("booking not found")
+)
+
+// Notification Errors
+var (
+	ErrNotificationNotSent = fmt.Errorf("failed to send notification")
 )

@@ -31,6 +31,15 @@ orchestrator:
 postgres:
   pool_max: 2
   dsn: something
+
+pubsub:
+  enabled: true
+  project_id: spacet-project
+  launches_topic: launches
+
+notifications:
+  interval: 30
+  batch_size_max: 50
   `)
 	invalidTmpFile, err := os.CreateTemp("", "invalid_config.yaml")
 	assert.NoError(t, err)
@@ -75,11 +84,13 @@ postgres:
 				path: validTmpFile.Name(),
 			},
 			want: &Config{
-				App:          App{Name: "spacet", Version: "1.0.0", LogLevel: "debug"},
-				HTTP:         HTTP{Port: 8080},
-				GRPC:         GRPC{Port: 8081},
-				Orchestrator: Orchestrator{Interval: float32(0.5)},
-				PG:           PG{PoolMax: 2, DSN: "something"},
+				App:           App{Name: "spacet", Version: "1.0.0", LogLevel: "debug"},
+				HTTP:          HTTP{Port: 8080},
+				GRPC:          GRPC{Port: 8081},
+				Orchestrator:  Orchestrator{Interval: float32(0.5)},
+				PG:            PG{PoolMax: 2, DSN: "something"},
+				PubSub:        PubSub{Enabled: true, ProjectID: "spacet-project", LaunchesTopic: "launches"},
+				Notifications: Notifications{MaxBatchSize: 50, Interval: 30},
 			},
 			wantErr: nil,
 		},

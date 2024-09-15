@@ -14,8 +14,51 @@ services:
     environment:
       PG_DSN: host=postgres port=5432 user=postgres dbname=spacet-db password=spacetpw sslmode=disable
       GIN_MODE: release
+      PUBSUB_PROJECT_ID: spacet-project
+      PUBSUB_LAUNCHES_TOPIC: launches
+      PUBSUB_EMULATOR_HOST: pubsub-emulator:8681
     volumes:
       - ./migrations/postgresql:/migrations/postgresql:ro
     ports:
       - 8080:8080
       - 8081:8081
+
+  pubsub-emulator:
+    image: thekevjames/gcloud-pubsub-emulator:406.0.0
+    ports:
+      - 8681:8681
+    environment:
+      - PUBSUB_PROJECT1=spacet-project,launches:my-subscription
+
+  wait-for-pubsub:
+    image: curlimages/curl:latest
+    depends_on:
+      - pubsub-emulator
+    command: sh -c 'until [[ "$(curl -sSf http://pubsub-emulator:8681)" = "Ok" ]]; do sleep 1; done;'
+    healthcheck:
+      test: ["CMD", "curl", "-sSf", "http://pubsub-emulator:8681"]
+      interval: 1s
+      timeout: 3s
+      retries: 10
+
+  # echo service simulates an application subscription
+  echo-service:
+    build: ./examples/echo-service
+    environment:
+      - PUBSUB_EMULATOR_HOST=pubsub-emulator:8681
+      - PUBSUB_PROJECT_ID=spacet-project
+      - ECHO_SUBSCRIPTION=my-subscription
+    depends_on:
+      wait-for-pubsub:
+        condition: service_completed_successfully
+
+  # just to guarantee pubsub emulator is working
+  publish-service:
+    build: ./examples/publish-service
+    environment:
+      - PUBSUB_EMULATOR_HOST=pubsub-emulator:8681
+      - PUBSUB_PROJECT_ID=spacet-project
+      - PUBLISH_TOPIC_ID=launches
+    depends_on:
+      wait-for-pubsub:
+        condition: service_completed_successfully

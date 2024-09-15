@@ -15,3 +15,12 @@ orchestrator:
 
 postgres:
   pool_max: 2
+
+pubsub:
+  enabled: true
+  project_id: spacet-project
+  launches_topic: launches
+
+notifications:
+  interval: 30
+  batch_size_max: 50

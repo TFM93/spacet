@@ -14,6 +14,7 @@
             "env": {
                 "PG_DSN": "host=localhost port=5432 user=postgres dbname=spacet-db password=spacetpw sslmode=disable",
                 "GIN_MODE": "release",
+                "PUBSUB_EMULATOR_HOST": "localhost:8681"
             }
         }
     ]

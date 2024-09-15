@@ -44,6 +44,7 @@ The `-config` flag defines the path of the configuration file. The default confi
 ##### minimal environment with the default config:
 ```bash 
 export PG_DSN="host=localhost port=5432 user=postgres dbname=spacet-db password=spacetpw sslmode=disable"
+export PUBSUB_EMULATOR_HOST="localhost:8681"
             
 ```
 
@@ -51,6 +52,9 @@ export PG_DSN="host=localhost port=5432 user=postgres dbname=spacet-db password=
 Running ``` docker compose up --detach ``` will bring up the following services:
 - PostgreSQL: The database service.
 - Spacet Microservice
+- PubSub Emulator: Acts as an event broker.
+- Echo Service: Consumes and echoes PubSub messages.
+- Publish Service: Ensures the PubSub emulator is functioning correctly by sending messages.
 
 
 #### Makefile
@@ -74,6 +78,12 @@ The makefile provides the following commands:
 | `PG_DSN`      | The Data Source Name (DSN) for connecting to Postgres. 
 | `GIN_MODE`      | Sets the gin mode (http server). ex: "release"
 | `ORCHESTRATOR_INTERVAL` | Manages the schedule interval that syncs spacex launches
+| `PUBSUB_EMULATOR_HOST`      | Sets the pubsub emulator host. 
+| `NOTIFICATIONS_BATCH_SIZE_MAX`      | The maximum batch size for processing notifications. 
+| `NOTIFICATIONS_INTERVAL`      | The interval (in seconds) for sending notifications. 
+| `PUBSUB_ENABLED`      | Flag to enable or disable Pub/Sub functionality. 
+| `PUBSUB_PROJECT_ID`      | The Google Cloud project ID for Pub/Sub. 
+| `PUBSUB_LAUNCHES_TOPIC`      | The Pub/Sub topic for launches-related events. 
 
 
 
@@ -126,6 +136,15 @@ This routine will cancel internal launches that collide with the spaceX schedule
 
 ### Distributed Locks
 The API uses distributed locks (using pg_try_advisory_lock), please check /internal/app/sync/commands.go, namely on SyncIfNecessary implementation, for more details.
+
+### PubSub connection
+to use the pubsub emulator the environment variable `PUBSUB_EMULATOR_HOST` needs to be set.For production, refer to the official Google documentation on setting up credentials and configuring the required environment variables.
+
+### Outbox Pattern
+We use this pattern to ensure that notifications are sent asynchronously while keeping the dependencies minimal. 
+This aligns well with the SOLID and CQRS principles used here.
+The outbox table keeps the events after they are successfully sent, this can be changed to remove right after the publish is made or by creating another async process to cleanup the table after some time.
+Note that this implementation may result in message duplication in the message broker.
 
 ### Cursor Based Pagination
 The list endpoint implements cursor-based pagination.
