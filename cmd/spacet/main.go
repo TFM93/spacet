@@ -80,10 +80,9 @@ func run(cfg *config.Config, l logger.Interface) error {
 	}
 
 	bookingsOrchestrator := app.NewBookingsOrchestrator(l, spaceXCommands, spaceXQueries, bookingsCommands, syncCommands)
-	fmt.Println(bookingsOrchestrator.SyncOnce(context.Background(), 0))
-	// orchestratorInterval := time.Duration(cfg.Orchestrator.Interval) * time.Hour
-	// go bookingsOrchestrator.StartScheduledSync(context.Background(), orchestratorInterval)
-	// defer bookingsOrchestrator.GracefulStop()
+	orchestratorInterval := time.Duration(cfg.Orchestrator.Interval) * time.Hour
+	go bookingsOrchestrator.StartScheduledSync(context.Background(), orchestratorInterval)
+	defer bookingsOrchestrator.GracefulStop()
 
 	// -------------------------------------------------------------------------
 	// Setup Controller Layer

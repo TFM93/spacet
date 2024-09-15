@@ -1,1 +1,159 @@
-# SpaceT
+# SpaceT Microservice
+
+## Table of Contents
+1. [Introduction](#introduction)
+2. [Installation](#installation)
+3. [Usage](#usage)
+5. [Environment Variables](#environment_variables)
+6. [API](#api)
+7. [Implementation Notes](#implementation)
+
+## Introduction
+SpaceT Microservice schedules launches by sharing the launchpads with spaceX.
+
+Note:
+Due to time constraints, not all infrastructure package tests have been fully covered. However, some tests have been implemented to showcase specific scenarios.
+
+## Installation
+
+### Prerequisites
+- Go 1.23+
+- Docker (optional, for containerization)
+- Buf (optional, for building protobufs)
+- golang-migrate (optional, for interact with database migrations)
+- mockery (optional, for generating the mocks)
+
+### Steps
+1. Install optional dependencies:
+    - Docker: Tested using [colima](https://github.com/abiosoft/colima);
+    - [golang-migrate](https://github.com/golang-migrate/migrate);
+    - [buf](https://buf.build/docs/installation)
+    - [mockery](https://github.com/vektra/mockery)
+
+2. ``` go mod download ```
+
+## Usage
+
+#### Running Locally:
+To run the service locally, one needs to run the following command:
+``` go run cmd/spacet/main.go -config=./config/config.yaml ```
+The `-config` flag defines the path of the configuration file. The default config file may produce errors due to missing values. To resolve this, you can either:
+1. Update the configuration file with the required values.
+2. use [environment variables](#Environment_Variables)
+
+##### minimal environment with the default config:
+```bash 
+export PG_DSN="host=localhost port=5432 user=postgres dbname=spacet-db password=spacetpw sslmode=disable"
+            
+```
+
+#### Running via Docker Compose
+Running ``` docker compose up --detach ``` will bring up the following services:
+- PostgreSQL: The database service.
+- Spacet Microservice
+
+
+#### Makefile
+The makefile provides the following commands:
+- `make proto`- Updates the project's protobufs.
+- ` make mocks `- Generates mocks using Mockery.
+- ` make docker-compose `- Runs Docker Compose in detached mode.
+- ` make test ` - Runs the tests.
+
+
+## Environment_variables
+
+| Variable Name | Description                            
+|---------------|----------------------------------------
+| `APP_NAME`        | The name of the application.    
+| `APP_VERSION`        | The version of the application.    
+| `LOG_LEVEL`   | The log level for the application
+| `HTTP_PORT`  | The port on which the HTTP server runs.   
+| `GRPC_PORT`   | The port on which the GRPC server runs. 
+| `PG_POOL_MAX`      | The maximum number of connections in the Postgres pool. 
+| `PG_DSN`      | The Data Source Name (DSN) for connecting to Postgres. 
+| `GIN_MODE`      | Sets the gin mode (http server). ex: "release"
+| `ORCHESTRATOR_INTERVAL` | Manages the schedule interval that syncs spacex launches
+
+
+
+## API
+
+This service provides both an HTTP server and a GRPC server. The protocol buffer definitions are located in `/protos/spacet.proto`.
+
+### HTTP server
+The HTTP server offers monitoring endpoints and acts as a gateway to the GRPC server using the [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway)
+
+Default port: `8080`
+
+The monitoring routes are:
+
+`GET /healthz` - Returns a status code 200 when the api is responsive
+
+`GET /readiness` - Returns a status code 200 and a json body when the api is ready
+
+`GET /liveness` - Monitors dependencies and returns 200 or 500 status codes.
+
+The gateway routes are served in the subpath /v1 
+
+Check ```/protos/spacet.proto``` or ```/gen/proto/openapiv2/spacet.swagger.json``` 
+
+### GRPC server
+The GRPC server uses protovalidate to validate proto message fields. Note that server reflection is not enabled, so you may need to import the validate proto manually. It can be downloaded from (https://github.com/bufbuild/protovalidate.git)
+
+Default port: `8081`
+
+### Postman Collection
+A Postman collection is included to simplify testing. However, it does not include any automation.
+
+directory: `/examples/spacet.postman_collection.json`
+
+## Implementation
+
+### Naming
+There are 4 main Entities in the domain model. 
+LaunchPads, Launches, Bookings and Tickets. A Ticket is essentially a booked launch. 
+
+### SpaceX API
+Inside /pkg/spacexapi there is an implementation of the spacexclient v4 api (only features launchpads, launches and landpads)
+
+### LaunchPad Fetching
+The launchpads are fetched every 30 days (currently upon application restart, but the intent was to create a schedule)
+
+### Launches Sync
+The sync between spaceX launches and internal launches is done using a scheduled. The frequency interval can be configured.
+This routine will cancel internal launches that collide with the spaceX schedule. In the future we can send a notification when bookings are cancelled.
+
+### Distributed Locks
+The API uses distributed locks (using pg_try_advisory_lock), please check /internal/app/sync/commands.go, namely on SyncIfNecessary implementation, for more details.
+
+### Cursor Based Pagination
+The list endpoint implements cursor-based pagination.
+
+### Design Patterns
+This project tries to follow SOLID, CQRS and clean architecture as much as possible. While there are opportunities for optimization, time constraints prevented full exploration.
+
+
+### Folder structure
+The `/pkg` folder provides Interfaces to interact with postgres, pubsub, logger and the servers.
+
+The `/migrations` folder contains the sql migrations
+
+The `/gen` folder contains the generated mocks, go proto packages, swagger definitions...
+
+The `/examples` folder intent was to have usage examples of the api. It also contains some dockerfiles that act as an example for publishing and consuming pubsub events
+
+The `/config` folder contains the base config and config structure of the application
+
+The `/cmd/spacet` is the entry point of the microservice
+
+Finally, the `/internal` folder contains the app implementation:
+ - `/app`  contains the service/usecase layer implementation
+ - `/controller` contains the controller/handlers layer (grpc and http apis)
+ - `/domain` contains the application domain definitions (repo interfaces, entities, models)
+ - `/infra` contains the infrastructure layer with repositories, notifications, outbox implementation ....
+
+
+
+### DB Migrations
+ ` migrate create -ext sql -dir migrations/postgresql -seq filename `
