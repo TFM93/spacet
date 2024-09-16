@@ -61,6 +61,10 @@ func request_SpaceTService_CancelBooking_0(ctx context.Context, marshaler runtim
 	var protoReq TicketID
 	var metadata runtime.ServerMetadata
 
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
 	var (
 		val string
 		ok  bool
@@ -86,6 +90,10 @@ func request_SpaceTService_CancelBooking_0(ctx context.Context, marshaler runtim
 func local_request_SpaceTService_CancelBooking_0(ctx context.Context, marshaler runtime.Marshaler, server SpaceTServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq TicketID
 	var metadata runtime.ServerMetadata
+
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 
 	var (
 		val string
@@ -177,7 +185,7 @@ func RegisterSpaceTServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 
 	})
 
-	mux.Handle("DELETE", pattern_SpaceTService_CancelBooking_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PATCH", pattern_SpaceTService_CancelBooking_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -185,7 +193,7 @@ func RegisterSpaceTServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/spacet.v1.SpaceTService/CancelBooking", runtime.WithHTTPPathPattern("/v1/bookings/{id}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/spacet.v1.SpaceTService/CancelBooking", runtime.WithHTTPPathPattern("/v1/bookings/{id}/cancel"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -290,13 +298,13 @@ func RegisterSpaceTServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 
 	})
 
-	mux.Handle("DELETE", pattern_SpaceTService_CancelBooking_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("PATCH", pattern_SpaceTService_CancelBooking_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/spacet.v1.SpaceTService/CancelBooking", runtime.WithHTTPPathPattern("/v1/bookings/{id}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/spacet.v1.SpaceTService/CancelBooking", runtime.WithHTTPPathPattern("/v1/bookings/{id}/cancel"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -340,7 +348,7 @@ func RegisterSpaceTServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 var (
 	pattern_SpaceTService_LaunchBooking_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "bookings"}, ""))
 
-	pattern_SpaceTService_CancelBooking_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "bookings", "id"}, ""))
+	pattern_SpaceTService_CancelBooking_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2, 2, 3}, []string{"v1", "bookings", "id", "cancel"}, ""))
 
 	pattern_SpaceTService_ListBookings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "bookings"}, ""))
 )

@@ -16,7 +16,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"first_name\": \"john\",\n    \"last_name\": \"gomez\",\n    \"gender\": \"male\",\n    \"birthday\": \"1993-03-30T00:00:00.000Z\",\n    \"launchpad_id\": \"5e9e4501f5090910d4566f83\",\n    \"launch_date\": \"2024-11-11T00:00:00.000Z\",\n    \"destination_id\": \"Mars\"\n}",
+							"raw": "{\n    \"first_name\": \"john\",\n    \"last_name\": \"gomez\",\n    \"gender\": \"male\",\n    \"birthday\": \"1993-03-30T00:00:00.000Z\",\n    \"launchpad_id\": \"5e9e4501f5090910d4566f83\",\n    \"launch_date\": \"2025-07-11T00:00:00.000Z\",\n    \"destination_id\": \"Mars\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -39,9 +39,9 @@
 					"response": []
 				},
 				{
-					"name": "Delete",
+					"name": "Cancel",
 					"request": {
-						"method": "DELETE",
+						"method": "PATCH",
 						"header": [],
 						"body": {
 							"mode": "raw",
@@ -53,7 +53,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/v1/bookings/cbd06167-41c1-4f51-abed-1ca6085653f8",
+							"raw": "http://localhost:8080/v1/bookings/ea1d4726-bc40-49cd-a5a6-b223b15039f8/cancel",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -62,7 +62,8 @@
 							"path": [
 								"v1",
 								"bookings",
-								"cbd06167-41c1-4f51-abed-1ca6085653f8"
+								"ea1d4726-bc40-49cd-a5a6-b223b15039f8",
+								"cancel"
 							]
 						}
 					},

@@ -10,9 +10,15 @@
 
 ## Introduction
 SpaceT Microservice schedules launches by sharing the launchpads with spaceX.
+I've considered that we can't control the spaceX launches therefore, the API must prioritize them. This means our internally booked launches can be canceled after booking if they conflict with SpaceX's schedule.
+The system works by periodically fetching the upcoming launches from spaceX API  and cancelling internal bookings that are scheduled on the same launchpad for the same day.
+When a cancellation occurs, an event is dispatched to an event broker to notify other services.
+
+Additionally, users can cancel their bookings by sending their ticket ID to the API.
 
 Note:
-Due to time constraints, not all infrastructure package tests have been fully covered. However, some tests have been implemented to showcase specific scenarios.
+- Due to time constraints, not all infrastructure package tests have been fully covered. However, some tests have been implemented to showcase specific scenarios.
+- Although the challenge mentions 2049 as the present year, i didn't restrict the API to only accept bookings after this date because the spaceX API is returning upcoming launches only in 2022;
 
 ## Installation
 

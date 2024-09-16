@@ -18,7 +18,8 @@ service SpaceTService {
 
   rpc CancelBooking(TicketID) returns (TicketID){
     option (google.api.http) = {
-      delete: "/v1/bookings/{id}"
+      patch: "/v1/bookings/{id}/cancel"
+      body: "*"
     };
   };
 
